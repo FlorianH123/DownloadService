@@ -65,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View view) throws InterruptedException {
         String text = textView.getText().toString();
 
-        //text = "http://emrolab.htw-saarland.de/android/wp-content/uploads/2018/01/WS17-MADA-10-ContentProvider.pdf";
+        //text = "http://emrolab.htw-saarland.de/android/wp-content/uploads/2017/12/WS17-MADA-09-Persistenz.pdf";
+        text = "http://eu25.gamersplatoon.com/Aslains_WoT_Modpack_Installer_v.9.21.0.3_03.exe";
 
         if (text.equals("")) {
             Toast.makeText(MainActivity.this, R.string.no_url_exception, Toast.LENGTH_SHORT).show();
