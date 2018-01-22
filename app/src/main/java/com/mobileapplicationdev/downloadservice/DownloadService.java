@@ -27,18 +27,6 @@ public class DownloadService extends Service {
     }
 
     @Override
-    public int onStartCommand(final Intent intent, int flags, int startId) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                stopSelf();
-            }
-        }, "my.thread.name").start();
-        return START_STICKY;
-    }
-
-    @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
