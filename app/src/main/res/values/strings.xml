@@ -2,6 +2,7 @@
     <string name="app_name">DownloadService</string>
     <string name="button_string">Download</string>
     <string name="text_view_enter_url">Enter URL</string>
+    <string name="download_finished">Der Download ist fertig</string>
 
     <string name="no_url_exception">Geben Sie eine URL an!</string>
 </resources>

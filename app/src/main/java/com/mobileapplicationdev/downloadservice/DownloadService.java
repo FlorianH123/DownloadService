@@ -31,16 +31,6 @@ public class DownloadService extends Service {
         return mBinder;
     }
 
-    @Override
-    public void onDestroy() {
-
-    }
-
-    @Override
-    public void onCreate() {
-
-    }
-
     public void startDownload(final String downloadUrl) {
         currentProgress = 0.0;
 

@@ -45,27 +45,16 @@ public class MainActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.url_text);
         progressBar = findViewById(R.id.progressBar);
-        Button button = findViewById(R.id.button);
 
         Intent intent = new Intent(this, DownloadService.class);
 
-        if (!isServiceRunning(DownloadService.class)) {
-            startService(intent);
-            bindService(intent, mConn, Context.BIND_AUTO_CREATE);
-        } else {
-            bindService(intent, mConn, Context.BIND_AUTO_CREATE);
-            textView.setActivated(false);
-            button.setActivated(false);
-            updateProgressBar();
-        }
-
-
+        startService(intent);
+        bindService(intent, mConn, Context.BIND_AUTO_CREATE);
     }
 
     public void onClick(View view) throws InterruptedException {
         String text = textView.getText().toString();
 
-        //text = "http://emrolab.htw-saarland.de/android/wp-content/uploads/2017/12/WS17-MADA-09-Persistenz.pdf";
         text = "http://eu25.gamersplatoon.com/Aslains_WoT_Modpack_Installer_v.9.21.0.3_07.exe";
 
         if (text.equals("")) {
@@ -91,18 +80,10 @@ public class MainActivity extends AppCompatActivity {
                             progressBar.setProgress(progressStatus);
                         }
                     });
+
+                    Toast.makeText(MainActivity.this, R.string.download_finished, Toast.LENGTH_SHORT).show();
                 }
             }
         }).start();
-    }
-
-    private boolean isServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
-            if(serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 }
