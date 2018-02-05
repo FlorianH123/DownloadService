@@ -1,10 +1,10 @@
 package com.mobileapplicationdev.downloadservice;
 
-import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -17,6 +17,8 @@ import java.net.URL;
  */
 
 public class DownloadService extends Service {
+    private static final String THREAD_NAME = "download.service.thread";
+
     private final IBinder mBinder = new LocalBinder();
     private double currentProgress;
 
@@ -31,42 +33,45 @@ public class DownloadService extends Service {
         return mBinder;
     }
 
-    public void startDownload(final String downloadUrl) {
+    /**
+     * Liest die gesendeten Bytes ein und berechnet den Fortschritt von gelesenen Bytes zu der
+     * gesamten Byteanzahl
+     *
+     * @param downloadUrlString URL des Downloads
+     */
+    public void startDownload(final String downloadUrlString) {
         currentProgress = 0.0;
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                long fileSize;
-                int bytesRead;
-                int totalBytesRead = 0;
-                double currentProgress;
+                long fileSize, bytesRead, totalBytesRead = 0;
+                byte[] data;
+                BufferedInputStream in;
+                HttpURLConnection conn;
+                URL downloadUrl;
 
                 try {
-                    URL url = new URL(downloadUrl);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    downloadUrl = new URL(downloadUrlString);
+                    conn = (HttpURLConnection) downloadUrl.openConnection();
 
                     fileSize = conn.getContentLength();
-                    BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
+                    in = new BufferedInputStream(conn.getInputStream());
 
-                    byte[] data = new byte[1024];
+                    data = new byte[1024];
 
                     while ((bytesRead = in.read(data, 0, 1024)) >= 0) {
                         totalBytesRead += bytesRead;
-
                         currentProgress = ((((double)totalBytesRead) / ((double)fileSize))) * 100;
-                        setCurrentProgress(currentProgress);
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                } catch (IOException ex) {
+                    Log.e(THREAD_NAME, ex.getMessage());
                 }
+
                 stopSelf();
             }
-        }, "my.thread.name").start();
-    }
-
-    public void setCurrentProgress(double currentProgress) {
-        this.currentProgress = currentProgress;
+        }, THREAD_NAME).start();
     }
 
     public double getCurrentProgress() {

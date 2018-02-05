@@ -1,27 +1,26 @@
 package com.mobileapplicationdev.downloadservice;
 
-import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String PROGRESSBAR_THREAD_NAME = "update.progressbar.thread";
     private ProgressBar progressBar;
     private TextView textView;
 
     private DownloadService downloadService;
     private boolean mBound = false;
-    private int progressStatus = 0;
+    private int progressStatus;
     private Handler handler = new Handler();
 
     private ServiceConnection mConn = new ServiceConnection() {
@@ -52,14 +51,20 @@ public class MainActivity extends AppCompatActivity {
         bindService(intent, mConn, Context.BIND_AUTO_CREATE);
     }
 
+    /**
+     * Wenn der User auf die Downloadschaltflaeche klickt startet der DownloadService und
+     * die Methode startDownload, der die URL, die in dem Textfeld steht, übergeben wird, gestartet
+     *
+     * @param view die geklickte View
+     */
     public void onClick(View view) throws InterruptedException {
         String text = textView.getText().toString();
 
-        text = "http://eu25.gamersplatoon.com/Aslains_WoT_Modpack_Installer_v.9.21.0.3_07.exe";
-
-        if (text.equals("")) {
+        if (text.trim().isEmpty()) {
             Toast.makeText(MainActivity.this, R.string.no_url_exception, Toast.LENGTH_SHORT).show();
         } else {
+            progressBar.setProgress(0);
+
             if (mBound) {
                 downloadService.startDownload(text);
                 updateProgressBar();
@@ -67,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Holt sich den aktuellen Downloadfortschritt von dem DownloadService
+     * und updatet die PrgressBar mit dem neuen Fortschritt
+     */
     public void updateProgressBar() {
         progressStatus = 0;
 
@@ -80,10 +89,16 @@ public class MainActivity extends AppCompatActivity {
                             progressBar.setProgress(progressStatus);
                         }
                     });
-
-                    Toast.makeText(MainActivity.this, R.string.download_finished, Toast.LENGTH_SHORT).show();
                 }
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, R.string.download_finished,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
             }
-        }).start();
+        }, PROGRESSBAR_THREAD_NAME).start();
     }
 }
